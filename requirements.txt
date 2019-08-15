@@ -1,0 +1,3 @@
+lxml>=4.1.1
+pyshp>=1.2.12
+unicodecsv>=0.14.1
