@@ -127,7 +127,7 @@ class RosreestrKPTReader:
             return
 
         # Убрать столбец с геометрией в формате wkt
-        parcels_without_geom = ({k: v for (k, v) in p.ToDict().items() if k != "Geom"} for p in self.parcels)
+        parcels_without_geom = ({k: v for (k, v) in p.ToDict().items() if k != "SP_GEOMETRY"} for p in self.parcels)
         parcels_without_geom, parcels_without_geom_copy = tee(parcels_without_geom)
 
         fieldNames = sorted(next(parcels_without_geom_copy).keys())
@@ -177,7 +177,7 @@ class RosreestrKPTReader:
             return
 
         fieldNames = sorted(self.parcels[0].ToDict().keys())
-        fieldNames.remove("Geom")
+        fieldNames.remove("SP_GEOMETRY")
         fieldNames.remove("Adr")
 
         if not shpFile.fields:
@@ -190,8 +190,8 @@ class RosreestrKPTReader:
 
         for p in self.parcels:
             shpFile.record(**p.ToDict())
-            geom = list(chain(*p.ToDict()["Geom"])) if p.ToDict()["Geom"] else None
-            shpFile.poly(parts=geom) if geom else shpFile.null()
+            geom = list(chain(*p.ToDict()["SP_GEOMETRY"])) if p.ToDict()["SP_GEOMETRY"] else None
+            shpFile.poly(geom) if geom else shpFile.null()
 
     def DebugPrint(self):
         '''
@@ -201,7 +201,7 @@ class RosreestrKPTReader:
 
         for p in self.parcels:
             print(p.ToDict()['КН'])
-            print(mpolygonList2wkt(p.ToDict()['Geom']))
+            print(mpolygonList2wkt(p.ToDict()['SP_GEOMETRY']))
         '''
 
 
@@ -293,7 +293,7 @@ class RosreestrParcelReader:
         return geomElements
 
     def ParseGeom(self):
-        self.parcelDict['Geom'] = self.ParsePolygon(self.parcel)
+        self.parcelDict['SP_GEOMETRY'] = self.ParsePolygon(self.parcel)
 
     def ParsePolygon(self, parcel):
         polygonsXml = self.ParseGeomElem(parcel, self.parcelMPolygonGeomXPathFunc)
