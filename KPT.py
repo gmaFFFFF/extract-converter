@@ -52,6 +52,7 @@ Copyright © 2017 Гришкин Максим (FFFFF@bk.ru)
 
 import os
 import csv, shapefile
+from pathlib import Path
 from lxml import etree
 from itertools import chain, tee
 
@@ -354,15 +355,15 @@ def GetListXmlFile(parentFolder):
 def main():
     print('Run')
 
-    parentFolder = r'D:\Distr\Скрипты\readKPT\in'
-    csvPath = r'D:\Distr\Скрипты\readKPT\out\attrib.csv'
-    shpPath = r'D:\Distr\Скрипты\readKPT\out\geom.shp'
+    parentFolder = Path().absolute() / 'in'
+    csvPath = Path().absolute() / r'out\attrib.csv'
+    shpPath = Path().absolute() / r'out\geom'
     sqlPath = Path().absolute() / r'out\query.sql'
     listXml = GetListXmlFile(parentFolder)
 
     with open(csvPath, 'w', newline='') as csvFile, \
             open(sqlPath, 'w') as sqlFile, \
-            shapefile.Writer(target=shpPath, shapeType=shapefile.POLYGON) as shpFile:
+            shapefile.Writer(target=str(shpPath), shapeType=shapefile.POLYGON) as shpFile:
 
         for xml in listXml:
             print(xml)
