@@ -55,6 +55,12 @@ import csv, shapefile
 from lxml import etree
 from itertools import chain, tee
 
+def is_numeric(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
 
 def xpath_ns(expr, tree=None):
     '''
@@ -134,6 +140,37 @@ class RosreestrKPTReader:
             writer.writerow(p)
 
         print('В csv добавлено %d участка(ов)' % len(self.parcels))
+
+    def ExportToMsSql(self, sqlFile, tableName = "TableName"):
+
+        if not self.parcels:
+            return
+
+        field_names = sorted(self.parcels[0].ToDict().keys())
+
+        def next_row():
+            parcels_dict = ({k: v for k, v in p.ToDict().items()}
+                            for p in self.parcels)
+            for p in parcels_dict:
+                row = []
+                for field in field_names:
+                    if field == "SP_GEOMETRY":
+                        row.append(f"geometry::STGeomFromText('{mpolygonList2wkt(p[field])}',0)" if p[field] else "Null")
+                    elif is_numeric(p[field]):
+                        row.append(p[field])
+                    elif p[field] == "":
+                        row.append("Null")
+                    else:
+                        row.append(f"'{p[field]}'")
+                yield row
+            return
+
+        field_names_str = ','.join(f'"{field}"' for field in field_names)
+        for p in next_row():
+            parcels_row_text = ','.join(p)
+            sqlFile.write(f"INSERT INTO {tableName} ({field_names_str}) ")
+            sqlFile.write(f"Values ({parcels_row_text}) ")
+            sqlFile.write("\nGO\n")
 
     def ExportToShp(self, shpFile):
         if not self.parcels:
@@ -320,10 +357,13 @@ def main():
     parentFolder = r'D:\Distr\Скрипты\readKPT\in'
     csvPath = r'D:\Distr\Скрипты\readKPT\out\attrib.csv'
     shpPath = r'D:\Distr\Скрипты\readKPT\out\geom.shp'
+    sqlPath = Path().absolute() / r'out\query.sql'
     listXml = GetListXmlFile(parentFolder)
 
-    #	Запись csv
-    with open(csvPath, 'w', newline='') as csvFile:
+    with open(csvPath, 'w', newline='') as csvFile, \
+            open(sqlPath, 'w') as sqlFile, \
+            shapefile.Writer(target=shpPath, shapeType=shapefile.POLYGON) as shpFile:
+
         for xml in listXml:
             print(xml)
 
@@ -334,16 +374,10 @@ def main():
             else:
                 KPTReader.ExportToCsv(csvFile, False)
 
-    # Запись shp
-    shpFile = shapefile.Writer(shapefile.POLYGON)
-    for xml in listXml:
-        print(xml)
-
-        KPTReader = RosreestrKPTReader(xml)
-        KPTReader.ExportToShp(shpFile)
-
-    shpFile.save(shpPath)
+            KPTReader.ExportToShp(shpFile)
+            KPTReader.ExportToMsSql(sqlFile, "mapinfo.egrn")
 
     print('Complete')
+
 
 main()
