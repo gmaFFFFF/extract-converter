@@ -1,8 +1,10 @@
 @echo off
 
+@CALL C:\Anaconda3\Scripts\activate.bat C:\Anaconda3\envs\dev
+
 :start
 
-"C:\Anaconda3\envs\dev\python.exe" KPT.py
+python KPT.py
 
 :Endscript
 pause
