@@ -50,11 +50,14 @@ Copyright © 2017 Гришкин Максим (FFFFF@bk.ru)
 ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 '''
 
+import csv
 import os
-import csv, shapefile
-from pathlib import Path
-from lxml import etree
+import shapefile
+
 from itertools import chain, tee
+from lxml import etree
+from pathlib import Path
+
 
 def is_numeric(num):
     try:
@@ -62,6 +65,7 @@ def is_numeric(num):
         return True
     except ValueError:
         return False
+
 
 def xpath_ns(expr, tree=None):
     '''
@@ -135,6 +139,7 @@ class RosreestrKPTReader:
 
     def ParseParcel(self):
         self.parcels = [RosreestrParcelReader(p) for p in self.parcelsXPathFunc(self.kpt)]
+
         return self.parcels
 
     def ExportToCsv(self, csvFile, addHeader=False):
@@ -156,7 +161,7 @@ class RosreestrKPTReader:
 
         print('В csv добавлено %d участка(ов)' % len(self.parcels))
 
-    def ExportToMsSql(self, sqlFile, tableName = "TableName"):
+    def ExportToMsSql(self, sqlFile, tableName="TableName"):
 
         if not self.parcels:
             return
@@ -170,7 +175,8 @@ class RosreestrKPTReader:
                 row = []
                 for field in field_names:
                     if field == "SP_GEOMETRY":
-                        row.append(f"geometry::STGeomFromText('{mpolygonList2wkt(p[field])}',0)" if p[field] else "Null")
+                        row.append(f"geometry::STGeomFromText('{mpolygonList2wkt(p[field])}',0)"
+                                   if p[field] else "Null")
                     elif is_numeric(p[field]):
                         row.append(p[field])
                     elif p[field] == "":
@@ -352,7 +358,7 @@ class RosreestrParcelReader:
 
 def GetListXmlFile(parentFolder):
     '''
-    Создает список, содержащий mxd-файлы
+    Создает список, содержащий xml-файлы
     '''
     listXmlFiles = []
 
