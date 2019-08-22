@@ -110,6 +110,20 @@ def mpolygonList2wkt(mpolygon, swapXY=False):
     return mpgn(mpolygon)
 
 
+def LandCategoryCode2Text(code: str) -> str:
+    return LandCategoryCode2Text.cat.get(code, code)
+
+
+LandCategoryCode2Text.cat: dict = {"003001000000": "Земли сельскохозяйственного назначения",
+                                   "003002000000": "Земли населённых пунктов",
+                                   "003003000000": "Земли промышленности",
+                                   "003004000000": "Земли особо охраняемых территорий и объектов",
+                                   "003005000000": "Земли лесного фонда",
+                                   "003006000000": "Земли водного фонда",
+                                   "003007000000": "Земли запаса",
+                                   "003008000000": "Прочие земли"}
+
+
 class RosreestrKPTReader:
     def __init__(self, pathToXml):
         self.parcelsXPathText = '//Parcel|//land_record'
@@ -212,7 +226,7 @@ class RosreestrParcelReader:
     parcelCadNumXPathText = './@CadastralNumber|./object/common_data/cad_number/text()'
     parcelAreaXPathText = './Area/Area|./params/area/value'
     parcelAdressXPathText = './Location/Address/Note|./address_location/address/readable_address'
-    parcelCategoryXPathText = './Category|./params/category/type/value'
+    parcelCategoryXPathText = './Category|./params/category/type/code'
     parcelUtilizationXPathText = './Utilization/@ByDoc|./params/permitted_use/permitted_use_established/by_document/text()'
     parcelCadastralCostXPathText = './CadastralCost/@Value|./cost/value/text()'
     parcelMPolygonGeomXPathText = './Contours/Contour/EntitySpatial|./EntitySpatial|./contours_location/contours/contour/entity_spatial'
@@ -275,12 +289,13 @@ class RosreestrParcelReader:
             self.parcel) else ''
         self.parcelDict['Adr'] = self.parcelAdressXPathFunc(self.parcel)[0].text if self.parcelAdressXPathFunc(
             self.parcel) else ''
-        self.parcelDict['Cat'] = self.parcelCategoryXPathFunc(self.parcel)[0].text if self.parcelCategoryXPathFunc(
-            self.parcel) else ''
+        cat = self.parcelCategoryXPathFunc(self.parcel)[0].text if self.parcelCategoryXPathFunc(self.parcel) else ''
         self.parcelDict['Util'] = self.parcelUtilizationXPathFunc(self.parcel)[0] if self.parcelUtilizationXPathFunc(
             self.parcel) else ''
         self.parcelDict['Coast'] = self.parcelCadastralCostXPathFunc(self.parcel)[
             0] if self.parcelCadastralCostXPathFunc(self.parcel) else ''
+
+        self.parcelDict['Cat'] = LandCategoryCode2Text(cat)
 
     def ParseGeomElem(self, xml, parser):
         geomElementsXml = parser(xml)
