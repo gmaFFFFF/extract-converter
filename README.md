@@ -11,13 +11,13 @@
 - Создать виртуальную среду (согласно инструкции к [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/environments.html))
 
 - В файле kptRun.bat уточнить путь к интерпретатуру python 
-   
+  
    ```
    @CALL C:\Anaconda3\Scripts\activate.bat C:\Anaconda3\envs\dev
    ```
    
 - Установить доп. пакеты для Python
-   
+  
    ```
    pip install -r requirements.txt
    ```
@@ -35,8 +35,13 @@
 
 ## История изменений
 
+**22.08.2019**
+- Распознается название категории земель
+- Уменьшено потребление оперативной памяти на больших xml
+
 **20.08.2019**
-. Добавлен экспорт в MS SQL Server query INSERT
-. Переход на последнюю версию Python
-. Переход на свежие библиотеки
-. Улучшена производительность
+
+- Добавлен экспорт в MS SQL Server query INSERT
+- Переход на последнюю версию Python
+- Переход на свежие библиотеки
+- Улучшена производительность
