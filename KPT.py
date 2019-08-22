@@ -135,23 +135,31 @@ class RosreestrKPTReader:
         self.parcelsXPath = xpath_ns(self.parcelsXPathText, self.kpt.getroot())
         self.parcelsXPathFunc = etree.XPath(**self.parcelsXPath)
 
-        self.ParseParcel()
+    def GetParcels(self):
+        try:
+            next((RosreestrParcelReader(p) for p in self.parcelsXPathFunc(self.kpt)))
+        except StopIteration:
+            return None
 
-    def ParseParcel(self):
-        self.parcels = [RosreestrParcelReader(p) for p in self.parcelsXPathFunc(self.kpt)]
+        return (RosreestrParcelReader(p) for p in self.parcelsXPathFunc(self.kpt))
 
-        return self.parcels
+    def GetFieldNames(self):
+        return ['CN', 'Area', 'Coast', 'Cat', 'Util', 'Adr', "SP_GEOMETRY"]
 
     def ExportToCsv(self, csvFile, addHeader=False):
-        if not self.parcels:
+
+        parcels = self.GetParcels()
+        if not parcels:
             return
 
         # Убрать столбец с геометрией в формате wkt
-        parcels_without_geom = ({k: v for (k, v) in p.ToDict().items() if k != "SP_GEOMETRY"} for p in self.parcels)
+        parcels_without_geom = ({k: v for (k, v) in p.ToDict().items() if k != "SP_GEOMETRY"} for p in parcels)
         parcels_without_geom, parcels_without_geom_copy = tee(parcels_without_geom)
 
-        fieldNames = sorted(next(parcels_without_geom_copy).keys())
-        writer = csv.DictWriter(csvFile, fieldnames=fieldNames)
+        field_names = self.GetFieldNames()
+        field_names.remove("SP_GEOMETRY")
+
+        writer = csv.DictWriter(csvFile, fieldnames=field_names)
 
         if addHeader:
             writer.writeheader()
@@ -159,18 +167,17 @@ class RosreestrKPTReader:
         for p in parcels_without_geom:
             writer.writerow(p)
 
-        print('В csv добавлено %d участка(ов)' % len(self.parcels))
-
     def ExportToMsSql(self, sqlFile, tableName="TableName"):
 
-        if not self.parcels:
+        parcels = self.GetParcels()
+        if not parcels:
             return
 
-        field_names = sorted(self.parcels[0].ToDict().keys())
+        field_names = self.GetFieldNames()
 
         def next_row():
             parcels_dict = ({k: v for k, v in p.ToDict().items()}
-                            for p in self.parcels)
+                            for p in parcels)
             for p in parcels_dict:
                 row = []
                 for field in field_names:
@@ -194,12 +201,14 @@ class RosreestrKPTReader:
             sqlFile.write("\nGO\n")
 
     def ExportToShp(self, shpFile):
-        if not self.parcels:
+
+        parcels = self.GetParcels()
+        if not parcels:
             return
 
-        fieldNames = sorted(self.parcels[0].ToDict().keys())
-        fieldNames.remove("SP_GEOMETRY")
-        fieldNames.remove("Adr")
+        field_names = self.GetFieldNames()
+        field_names.remove("SP_GEOMETRY")
+        field_names.remove("Adr")
 
         if not shpFile.fields:
             # Данный код не работает. Происходит переполнение полей
@@ -209,7 +218,7 @@ class RosreestrKPTReader:
             shpFile.field("Area", "N")
             shpFile.field("Coast", decimal=2)
 
-        for p in self.parcels:
+        for p in parcels:
             shpFile.record(**p.ToDict())
             geom = list(chain(*p.ToDict()["SP_GEOMETRY"])) if p.ToDict()["SP_GEOMETRY"] else None
             shpFile.poly(geom) if geom else shpFile.null()
@@ -382,8 +391,8 @@ def main():
     sqlPath = Path().absolute() / r'out\query.sql'
     listXml = GetListXmlFile(parentFolder)
 
-    with open(csvPath, 'w', newline='') as csvFile, \
-            open(sqlPath, 'w') as sqlFile, \
+    with open(csvPath, 'w', newline='', buffering=-1) as csvFile, \
+            open(sqlPath, 'w', buffering=-1) as sqlFile, \
             shapefile.Writer(target=str(shpPath), shapeType=shapefile.POLYGON) as shpFile:
 
         for xml in listXml:
