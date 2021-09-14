@@ -130,7 +130,7 @@ LandCategoryCode2Text.cat: dict = {"003001000000": "Земли сельскох�
 
 class RosreestrKPTReader:
     def __init__(self, pathToXml):
-        self.parcelsXPathText = '//Parcel|//land_record'
+        self.parcelsXPathText = '|'.join(['//Parcel', '//land_record'])
         self.kpt = etree.parse(pathToXml)
         self.parcelsXPath = xpath_ns(self.parcelsXPathText, self.kpt.getroot())
         self.parcelsXPathFunc = etree.XPath(**self.parcelsXPath)
@@ -238,17 +238,19 @@ class RosreestrKPTReader:
 class RosreestrParcelReader:
     swapXY = True
 
-    parcelCadNumXPathText = './@CadastralNumber|./object/common_data/cad_number/text()'
-    parcelAreaXPathText = './Area/Area|./params/area/value'
-    parcelAdressXPathText = './Location/Address/Note|./address_location/address/readable_address'
-    parcelCategoryXPathText = './Category|./params/category/type/code'
-    parcelUtilizationXPathText = './Utilization/@ByDoc|./params/permitted_use/permitted_use_established/by_document/text()'
-    parcelCadastralCostXPathText = './CadastralCost/@Value|./cost/value/text()'
-    parcelMPolygonGeomXPathText = './Contours/Contour/EntitySpatial|./EntitySpatial|./contours_location/contours/contour/entity_spatial'
-    parcelLinearRingGeomXPathText = './SpatialElement|./spatials_elements/spatial_element'
-    parcelPointGeomXPathText = './SpelementUnit/Ordinate|./ordinates/ordinate'
-    parcelPointXCoordXPathText = './@X|./x/text()'
-    parcelPointYCoordXPathText = './@Y|./y/text()'
+    parcelCadNumXPathText = '|'.join(['./@CadastralNumber', './object/common_data/cad_number/text()'])
+    parcelAreaXPathText = '|'.join(['./Area/Area', './params/area/value'])
+    parcelAdressXPathText = '|'.join(['./Location/Address/Note', './address_location/address/readable_address'])
+    parcelCategoryXPathText = '|'.join(['./Category', './params/category/type/code'])
+    parcelUtilizationXPathText = '|'.join(
+        ['./Utilization/@ByDoc', './params/permitted_use/permitted_use_established/by_document/text()'])
+    parcelCadastralCostXPathText = '|'.join(['./CadastralCost/@Value', './cost/value/text()'])
+    parcelMPolygonGeomXPathText = '|'.join(
+        ['./Contours/Contour/EntitySpatial', './EntitySpatial', './contours_location/contours/contour/entity_spatial'])
+    parcelLinearRingGeomXPathText = '|'.join(['./SpatialElement', './spatials_elements/spatial_element'])
+    parcelPointGeomXPathText = '|'.join(['./SpelementUnit/Ordinate', './ordinates/ordinate'])
+    parcelPointXCoordXPathText = '|'.join(['./@X', './x/text()'])
+    parcelPointYCoordXPathText = '|'.join(['./@Y', './y/text()'])
 
     def __init__(self, Xml):
 
