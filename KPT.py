@@ -220,7 +220,9 @@ class RosreestrKPTReader:
 
         for p in parcels:
             shpFile.record(**p.ToDict())
-            geom = list(chain(*p.ToDict()["SP_GEOMETRY"])) if p.ToDict()["SP_GEOMETRY"] else None
+            contours = p.ToDict()["SP_GEOMETRY"] if p.ToDict()["SP_GEOMETRY"] else None
+            cont_vertex_reversed = [list(reversed(ring)) for cnt in contours for ring in cnt] if contours else None
+            geom = cont_vertex_reversed if cont_vertex_reversed else None
             shpFile.poly(geom) if geom else shpFile.null()
 
     def DebugPrint(self):
