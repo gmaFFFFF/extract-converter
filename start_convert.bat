@@ -14,7 +14,7 @@ IF ERRORLEVEL 1  (
     call RefreshEnv.cmd
 )
 
-pipenv run py KPT.py
+pipenv run py convert.py
 )
 
 rem Возврат исходной кодировки
