@@ -15,7 +15,7 @@ IF ERRORLEVEL 1  (
 )
 
 pipenv run py convert.py
-)
+
 
 rem Возврат исходной кодировки
 chcp %ccp% > nul
