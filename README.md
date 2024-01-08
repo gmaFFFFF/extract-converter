@@ -54,10 +54,11 @@ Transformations).
 Можете скачать эти файлы себе или скопировать **raw**-ссылки на них.
 Обратите внимание, что скачивать и ссылаться нужно на сырой (raw) файл, а не на просмоторщик хостинга.
 Примеры raw-ссылок на два зеркала репозитория: [GitHub](github.com) и [SourceForge](sourceforge.net):
-[NanoCad на GitHub](https://raw.githubusercontent.com/gmaFFFFF/extract-converter/develop/xslt/extract2nanocad_line_cmd.xsl)
-[AutoCad на GitHub](https://raw.githubusercontent.com/gmaFFFFF/extract-converter/develop/xslt/extract2acad_line_cmd.xsl)
-[NanoCad на SourceForge](https://sourceforge.net/p/cadaster-utils/extract-converter/ci/default/tree/xslt/extract2nanocad_line_cmd.xsl?format=raw)
-[AutoCad на SourceForge](https://sourceforge.net/p/cadaster-utils/extract-converter/ci/default/tree/xslt/extract2acad_line_cmd.xsl?format=raw)
+
+- [NanoCad на GitHub](https://raw.githubusercontent.com/gmaFFFFF/extract-converter/develop/xslt/extract2nanocad_line_cmd.xsl)
+- [AutoCad на GitHub](https://raw.githubusercontent.com/gmaFFFFF/extract-converter/develop/xslt/extract2acad_line_cmd.xsl)
+- [NanoCad на SourceForge](https://sourceforge.net/p/cadaster-utils/extract-converter/ci/default/tree/xslt/extract2nanocad_line_cmd.xsl?format=raw)
+- [AutoCad на SourceForge](https://sourceforge.net/p/cadaster-utils/extract-converter/ci/default/tree/xslt/extract2acad_line_cmd.xsl?format=raw)
 
 ## Порядок работы
 
@@ -68,7 +69,8 @@ Transformations).
 1. Выбираешь Плагины\XML Tools\XSL Transformation… (также кнопка доступна на панели быстрого доступа).
 2. Указываешь raw-путь к подходящему файлу xsl для NanoCad(xslt/extract2nanocad_line_cmd.xsl) и AutoCad(xslt/extract2acad_line_cmd.xsl).
 3. Если координаты в файле перепутаны, то дополнительно задаешь параметр «xy» как на рисунке
-   ![Окно преобразования xml](doc/img/xml_tools.png)
+   
+![Окно преобразования xml](doc/img/xml_tools.png)
 4. Нажимаешь Transform.
 5. Из созданного временного файла копируешь всё и вставляешь в командную строку кад-системы.
 
